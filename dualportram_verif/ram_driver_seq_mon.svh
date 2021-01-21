@@ -108,18 +108,51 @@ class ram_monitor extends uvm_monitor;
 
 
  //get handle to virtual interface from agent/config_db
-  virtual function void build_phase()
+  virtual function void build_phase(uvm_phase phase);
   //:TODO
+  ram_agent agent;
+
+  if($cast(agent, get_parent()) && agent != null) begin
+    vif = agent.vif;
+  end
+  else begin
+   virtual rd_if vif;
+   if(!uvm_config_db#(virtual rd_if)::get(this, "", "rd_if", vif)) begin
+     `uvm_fatal("RAM/MON/NOVIF", "No Virtual interface specified for this monitor instance")
+   end
+   vif = tmp;
+  end
   endfunction 
 
 
   virtual task run_phase()
     //:TODO convert signal level activity into transactions
-  endtask
+    super.run_phase(phase);
+
+    forever begin 
+      ram_rd_wr  txn;
+      //Wait for the SETUP cycle
+      @(this.vif.monitor_cb);
+      //Create a transaction object
+      txn = ram_rd_wr::type_id::create("txn", this);
+
+      //Populate fields based on values seen on interface
+      txn.operation = (this.vif.monitor_cb.rd_en_d) ? ram_rd_wr::WRITE : ram_rd_wr::READ;
+      txn.addr = this.vif.monitor_cb.rd_addr; // How would you get this?
+
+      @(this.vif.monitor_cb);
+      //Check for enable like APB else error it out
+      
+      txn.data = this.vif.monitor_cb.data_out; // How would you get this?
+
+      uvm_report_info("RAM MONITOR", $psprintf("Got Transaction %s",txn.convert2string()));
+
+      //Write to Analysis Port
+      ap.write(txn);
+    end
+  endtask: run_phase
 
 
 endclass: ram_monitor
-
-
 
 `endif
