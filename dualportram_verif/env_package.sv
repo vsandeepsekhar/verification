@@ -15,6 +15,7 @@ import uvm_pkg::*;
 `include "ram_rd_wr.sv"
 `include "rd_if.sv"
 `include "testbench.sv"
+`include "ram_score_board.sv"
 
 
 endpackage
