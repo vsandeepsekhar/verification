@@ -14,5 +14,5 @@ features and verification plan can look like this :</p>
 <br>------> Verification of rd followed by wr and vice versa</br>
 </p>
 <p>2. Verification of Synchronous FIFO </p>
-
+<br> Will be using System verilog Assertions </br>
 <br>To be contibued...</br>
