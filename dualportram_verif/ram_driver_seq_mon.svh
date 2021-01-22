@@ -16,6 +16,9 @@ class ram_master_drv extends uvm_driver(ram_rd_wr);
   
    virtual rd_if vif;
    ram_config cfg;
+   
+   //Important here since this contributes to expected data queue
+   uvm_analysis_port #(ram_rd_wr) Drv2sb_port;
 
    function new(string name,uvm_component parent=null);
      super.new(name,parent);
@@ -27,6 +30,9 @@ class ram_master_drv extends uvm_driver(ram_rd_wr);
    function void build_phase(uvm_phase phase);
      ram_agent agent;
      super.build_phase(phase);
+     
+     Drv2sb_port = new("Drv2sb", this);
+
      if($cast(agent, get_parent()) && agent != null) begin
        vif = agent.vif;
      end
@@ -48,6 +54,10 @@ class ram_master_drv extends uvm_driver(ram_rd_wr);
        @(this.vif.master_cb);
        //First get an item from the sequencer
        seq_item_port.get_next_item(txn);
+
+       //Writing to scoreboard analysis port for expected data 
+       Drv2sb_port.write(txn);
+
        @(this.vif.master_cb);
        uvm_report_info("RAM DRIVER", $psprintf("Got Transaction %s",txn.convert2string()));
        //Decode the command and call their Read/write function
@@ -93,7 +103,8 @@ class ram_monitor extends uvm_monitor;
 
   //Analysis port parametrized to ram_rd_wr transaction
   //Monitor wtites transaction objects to this port once detected on interface
-  uvm_analysis_port#(ram_rd_wr) ap;
+  //This will contribute to scoreboard
+  uvm_analysis_port#(ram_rd_wr) Rvr2sb_port;
 
 
   //config class handle
@@ -103,7 +114,7 @@ class ram_monitor extends uvm_monitor;
 
   function new(string name,uvm_component parent = null);
     super.new(name,parent;
-    ap = new("ap",this));
+    Rvr2sb_port = new("Rvr2sb",this));
   endfunction
 
 
@@ -147,8 +158,9 @@ class ram_monitor extends uvm_monitor;
 
       uvm_report_info("RAM MONITOR", $psprintf("Got Transaction %s",txn.convert2string()));
 
-      //Write to Analysis Port
-      ap.write(txn);
+      //Write to Analysis Port to be written to actual data queue for
+      //scoreboard comparision
+      Rvr2sb_port.write(txn);
     end
   endtask: run_phase
 
