@@ -1,7 +1,11 @@
+// Code your testbench here
+// or browse Examples
 
 `define FIFO_WIDTH 16
 `define FIFO_SIZE_BITS 5
 `define FIFO_SIZE (1<<`FIFO_SIZE_BITS)
+
+
 
 module tb;
   
@@ -46,6 +50,8 @@ module tb;
   end
   
   initial begin
+    $dumpfile("dump.vcd");
+    $dumpvars(1,tb);
     $monitor("FIFO Counter = %0d, FIFO Full = %0d",fifo_counter,fifo_full);
   end
   
@@ -57,6 +63,7 @@ module tb;
   endproperty
   
   assert property(p1);
+  cover property(p1);
   
   //IF the FIFO is full, and there is a write operation  without a simultaneous read operation, 
     // The full flag should not change
@@ -65,6 +72,7 @@ module tb;
   endproperty
   
   assert property(p2);
+  cover property(p2);
     
   // if teh FIFO is full, and there is a write operation without a simultaneous read operation, the write pointer should not change  
   property p3;
@@ -73,6 +81,7 @@ module tb;
   endproperty
     
   assert property(p3);
+  cover property(p3);  
     
   //White Box Assertions
   //if fifo_counter is greater then 31 then the FIFO is full 
@@ -82,6 +91,7 @@ module tb;
   endproperty
     
   assert property(p4);
+  cover property(p4);  
     
   //if fifo_counter is less than 32, the FIFO is not full 
   property p5;
@@ -90,7 +100,8 @@ module tb;
   endproperty
     
   assert property(p5);
- 
+  cover property(p5);
+      
   //if the word counter is 31 and there is a write operation without simultaneous read
   //the FIFO should go Full
     
@@ -100,5 +111,9 @@ module tb;
   endproperty
     
   assert property(p6);
+  cover property(p6);  
+    
+    
+    
      
 endmodule 
