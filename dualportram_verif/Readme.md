@@ -7,7 +7,7 @@
 │   └── <font color="#3465A4"><b>ip_dv</b></font>
 │       ├── env_package.sv
 │       ├── <font color="#3465A4"><b>interface</b></font>
-│       │   └── rd_if.sv
+│       │   └── rd_wr_if.sv
 │       ├── <font color="#3465A4"><b>sequences</b></font>
 │       │   ├── ram_rd_wr_sequences.sv
 │       │   └── <font color="#3465A4"><b>seq_items</b></font>
