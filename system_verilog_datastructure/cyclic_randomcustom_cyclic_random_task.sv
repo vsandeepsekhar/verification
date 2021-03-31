@@ -1,8 +1,3 @@
-/*
-  The function generate randc is a custom cyclic random task called from testbench
-  This can be used in callbacks.
-*/
-
 class randc_var;
   rand bit[3:0] rand_var;  
 endclass
@@ -13,12 +8,20 @@ class randomc_eg;
   int i=0;
   bit match;
   
-  task generate_randc();
+  function void pre_randomize();
+    $display("Inside pre_randomization");
+  endfunction
+  
+  function void post_randomize();
+    $display("Inside post_randomize");
+  endfunction
+  
+  task generate_randc(int size);
     var_c = new();
-    while(list.size() <= 8) begin 
+    while(list.size() <= size) begin 
       assert(var_c.randomize());
           
-      for(i = 0; i<= list.size() && (match==0) && (list.size() <= 8); i++) begin 
+      for(i = 0; i<= list.size() && (match==0) && (list.size() <= size); i++) begin 
         if(var_c.rand_var == list[i]) begin 
           match = 1;
           $display("** Got a duplicate entry ******");
@@ -47,7 +50,8 @@ module tb;
   
   initial begin
     rand_g = new();
-    rand_g.generate_randc();
+    assert(rand_g.randomize());
+    rand_g.generate_randc(10);
   end
   
 endmodule  
