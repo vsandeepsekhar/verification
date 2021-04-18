@@ -1,3 +1,7 @@
+/* Customized randc function
+ Can be used in callbacks
+*/
+
 class randc_var;
   rand bit[3:0] rand_var;  
 endclass
